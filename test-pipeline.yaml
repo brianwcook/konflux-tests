@@ -35,6 +35,9 @@ spec:
           script: | 
             echo "Snapshot:\n"
             echo ${SNAPSHOT} | jq "."
+            echo ${SNAPSHOT} | jq ".components"
+            echo ${SNAPSHOT} | jq ".components[]"
+            echo ${SNAPSHOT} | jq ".components.[]"
             # extract image pullspec here
             IMAGE=$(echo ${SNAPSHOT} | jq '.components.[] | select(.name=="arm64-test-demo")'| jq .containerImage | tr -d '"')
 
