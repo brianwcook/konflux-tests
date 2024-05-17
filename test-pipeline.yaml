@@ -21,7 +21,14 @@ spec:
       params:
         - name: SNAPSHOT
           value: $(params.SNAPSHOT)
+        - name: PLATFORM
+            value: linux/arm64
       taskSpec:
+        volumes:
+        - name: ssh
+          secret:
+            optional: false
+            secretName: multi-platform-ssh-$(context.taskRun.name)
         params:
         - name: SNAPSHOT
         results:
@@ -55,3 +62,4 @@ spec:
             TEST_OUTPUT=$(jq -rc --arg date $(date +%s) --arg RESULT "${RESULT}" --null-input \
               '{result: $RESULT, timestamp: $date, failures: 0, successes: 1, warnings: 0}')
             echo -n "${TEST_OUTPUT}" | tee $(results.TEST_OUTPUT.path)
+          
