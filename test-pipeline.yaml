@@ -22,7 +22,7 @@ spec:
         - name: SNAPSHOT
           value: $(params.SNAPSHOT)
         - name: PLATFORM
-            value: linux/arm64
+          value: linux/arm64
       taskSpec:
         volumes:
         - name: ssh
