@@ -6,7 +6,8 @@ SNAPSHOT='{"application":"konflux-arm64-test-demo","components":[{"name":"arm64-
 echo "Snapshot:\n"
 echo ${SNAPSHOT} | jq "."
 # extract image pullspec here
-IMAGE=$(echo ${SNAPSHOT} | jq '.components.[] | select(.name=="arm64-test-demo")'| jq .containerImage | tr -d '"')
+IMAGE=$(echo ${SNAPSHOT} | jq '.components[] | select(.name=="arm64-test-demo")'| jq .containerImage | tr -d '"')
+echo IMAGE=$IMAGE
 
 # Run custom tests for the given Snapshot here
 # After the tests finish, record the overall result in the RESULT variable
