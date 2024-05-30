@@ -110,7 +110,7 @@ spec:
               echo $RESULT
             fi
             echo "OUTPUT: $OUTPUT"
-            echo "{\"timestamp\":\"$(date +%s)\",\"namespace\":\"\",\"successes\":${SUCCESSES},\"failures\":\${FAILURES},\"warnings\":0,\"arch\":$(arch),\"result\":\"${RESULT}\"}"
+            echo "{\"timestamp\":\"$(date +%s)\",\"namespace\":\"\",\"successes\":${SUCCESSES},\"failures\":\${FAILURES},\"warnings\":0,\"arch\":$REMOTE_ARCH,\"result\":\"${RESULT}\"}"
 
           securityContext:
             runAsUser: 0
