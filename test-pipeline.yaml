@@ -88,8 +88,14 @@ spec:
             # Run custom tests for the given Snapshot here
             # After the tests finish, record the overall result in the RESULT variable
             
-            # execute container on remote host
+
+            # Just get some info about the arch of our systems
+            REMOTE_ARCH=$(ssh $SSH_ARGS "$SSH_HOST" /bin/bash -c "arch")
+            echo -e local arch is: $(arch)
+            echo -e remote arch is: $REMOTE_ARCH
+            echo "Running Test..."
             
+            # execute container on remote host
             OUTPUT=$(ssh $SSH_ARGS "$SSH_HOST" podman run --rm --entrypoint="/hello-world.sh" $IMAGE)
             
             if [ "$OUTPUT" = 'Hello World!' ]; then
