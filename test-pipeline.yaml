@@ -29,6 +29,7 @@ spec:
           secret:
             optional: false
             secretName: multi-platform-ssh-$(context.taskRun.name)
+        
         params:
         - name: SNAPSHOT
         results:
@@ -75,3 +76,7 @@ spec:
             capabilities:
               add:
               - SETFCAP
+          volumeMounts:
+          - mountPath: /ssh
+            name: ssh
+            readOnly: true
