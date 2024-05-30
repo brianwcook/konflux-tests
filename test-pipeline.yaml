@@ -18,8 +18,6 @@ spec:
       type: string
     - name: PLATFORM
       description: "multi-platform-controller platofmr string"
-      default: "linux/amd64"
-
   tasks:
     - name: task-1
       params:
