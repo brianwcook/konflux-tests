@@ -35,7 +35,8 @@ spec:
         - name: TEST_OUTPUT
           description: Test output
         steps:
-        - image: quay.io/bcook/jq-ubi9:latest
+        - name: run-test
+          image: quay.io/bcook/jq-ubi9:latest
           env:
           - name: SNAPSHOT
             value: $(params.SNAPSHOT)
