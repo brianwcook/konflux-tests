@@ -36,6 +36,11 @@ spec:
           description: Test output
         steps:
         - image: quay.io/bcook/jq-ubi9:latest
+          securityContext:
+            runAsUser: 0
+            capabilities:
+              add:
+              - SETFCAP
           env:
           - name: SNAPSHOT
             value: $(params.SNAPSHOT)
