@@ -29,7 +29,8 @@ spec:
           secret:
             optional: false
             secretName: multi-platform-ssh-$(context.taskRun.name)
-        
+        - emptyDir: {}
+          name: workspace
         params:
         - name: SNAPSHOT
         results:
@@ -79,4 +80,6 @@ spec:
           volumeMounts:
           - mountPath: /ssh
             name: ssh
+          - mountPath: /workspace
+            name: workspace
             readOnly: true
