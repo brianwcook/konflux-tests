@@ -21,23 +21,34 @@ spec:
       params:
         - name: SNAPSHOT
           value: $(params.SNAPSHOT)
+        - name: PLATFORM
+          value: linux/arm64
       taskSpec:
+        volumes:
+        - name: ssh
+          secret:
+            optional: false
+            secretName: multi-platform-ssh-$(context.taskRun.name)
         params:
         - name: SNAPSHOT
         results:
         - name: TEST_OUTPUT
           description: Test output
         steps:
-        - image: registry.redhat.io/openshift4/ose-cli:latest
+        - image: quay.io/bcook/jq-ubi9:latest
           env:
           - name: SNAPSHOT
             value: $(params.SNAPSHOT)
           script: | 
             echo "Snapshot:\n"
             echo ${SNAPSHOT} | jq "."
-            # extract image pullspec here
-            IMAGE=$(echo ${SNAPSHOT} | jq '.components.[] | select(.name=="arm64-test-demo")'| jq .containerImage | tr -d '"')
-
+            echo "1 - works:"
+            echo ${SNAPSHOT} | jq ".components"
+            
+            echo extracting image pullspec...
+            IMAGE=$(echo ${SNAPSHOT} | jq ".components[] | select(.name==\"arm64-test-demo\")"| jq .containerImage | tr -d '"')
+            echo IMAGE SPEC: $IMAGE
+            
             # Run custom tests for the given Snapshot here
             # After the tests finish, record the overall result in the RESULT variable
             
@@ -54,7 +65,8 @@ spec:
               echo $RESULT
             fi
 
-            // Output the standardized TEST_OUTPUT result in JSON form
+            # Output the standardized TEST_OUTPUT result in JSON form
             TEST_OUTPUT=$(jq -rc --arg date $(date +%s) --arg RESULT "${RESULT}" --null-input \
               '{result: $RESULT, timestamp: $date, failures: ${FAILURES}, successes: ${FAILURES}, warnings: 0}')
             echo -n "${TEST_OUTPUT}" | tee $(results.TEST_OUTPUT.path)
+          
