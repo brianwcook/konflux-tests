@@ -38,7 +38,7 @@ spec:
           description: Test output
         steps:
         - name: run-test
-          image: quay.io/bcook/jq-ubi9:latest
+          image: quay.io/redhat-appstudio/multi-platform-runner:01c7670e81d5120347cf0ad13372742489985e5f@sha256:246adeaaba600e207131d63a7f706cffdcdc37d8f600c56187123ec62823ff44
           env:
           - name: SNAPSHOT
             value: $(params.SNAPSHOT)
@@ -47,15 +47,6 @@ spec:
             # Run custom tests for the given Snapshot here
             # After the tests finish, record the overall result in the RESULT variable
             
-            
-
-            # Output the standardized TEST_OUTPUT result in JSON form
-            # TEST_OUTPUT=$(jq -rc --arg date $(date +%s) --arg RESULT "${RESULT}" --null-input \
-            #  '{result: $RESULT, timestamp: $date, failures: $FAILURES, successes: $SUCCESSES, warnings: 0}')
-            
-
-            echo -n "${TEST_OUTPUT}" | tee $(results.TEST_OUTPUT.path)
-
             #############################
             set -o verbose
             set -eu
@@ -90,19 +81,6 @@ spec:
             echo 'script-build.sh start'
             echo -e  $(uname -m)
             
-            echo running test
-            if podman run --rm --entrypoint="/hello-world.sh" $IMAGE | grep -Fxq 'Hello World!'; then
-              RESULT="SUCCESS"
-              SUCCESSES=1
-              FAILURES=0
-              echo $RESULT
-            else
-              RESULT="FAILURE"
-              SUCCESSES=0
-              FAILURES=1
-              echo $RESULT
-            fi
-            
             echo 'script-build.sh end'
             REMOTESSHEOF
             
@@ -128,10 +106,34 @@ spec:
           
 
             # execute the script in a container on the SSH host
-            ssh $SSH_ARGS "$SSH_HOST" podman  run \
+            if [ssh $SSH_ARGS "$SSH_HOST" podman  run \
             -e PARAM_BUILDER_IMAGE="quay.io/bcook/jq-ubi9:latest" \
             -v $BUILD_DIR/scripts:/script:Z \
-            --user=0  --rm  "$BUILDER_IMAGE" /script/script-build.sh
+            --user=0  --rm  "$BUILDER_IMAGE" /script/script-build.sh]; then
+              RESULT=SUCCESS
+            fi
+
+
+            # Output the standardized TEST_OUTPUT result in JSON form
+            # TEST_OUTPUT=$(jq -rc --arg date $(date +%s) --arg RESULT "${RESULT}" --null-input \
+            #  '{result: $RESULT, timestamp: $date, failures: $FAILURES, successes: $SUCCESSES, warnings: 0}')
+            
+            if [ $SUCCESS ]; then
+              RESULT="SUCCESS"
+              SUCCESSES=1
+              FAILURES=0
+              echo $RESULT
+            else
+              RESULT="FAILURE"
+              SUCCESSES=0
+              FAILURES=1
+              echo $RESULT
+            fi
+
+
+            echo -n "{"timestamp":"${date +%s}","namespace":"","successes":${success},"failures":"","warnings":0,"result":${RESULT}}" > "$(results.TEST_OUTPUT.path)"
+
+
 
           securityContext:
             runAsUser: 0
