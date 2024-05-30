@@ -43,58 +43,6 @@ spec:
           - name: SNAPSHOT
             value: $(params.SNAPSHOT)
           script: | 
-            
-            # Run custom tests for the given Snapshot here
-            # After the tests finish, record the overall result in the RESULT variable
-            
-            #############################
-            set -o verbose
-            set -eu
-            set -o pipefail
-            mkdir -p ~/.ssh
-            if [ -e "/ssh/error" ]; then
-              #no server could be provisioned
-              cat /ssh/error
-              exit 1
-            elif [ -e "/ssh/otp" ]; then
-            curl --cacert /ssh/otp-ca -XPOST -d @/ssh/otp $(cat /ssh/otp-server) >~/.ssh/id_rsa
-            echo "" >> ~/.ssh/id_rsa
-            else
-              cp /ssh/id_rsa ~/.ssh
-            fi
-            chmod 0400 ~/.ssh/id_rsa
-            export SSH_HOST=$(cat /ssh/host)
-            export BUILD_DIR=$(cat /ssh/user-dir)
-            export SSH_ARGS="-o StrictHostKeyChecking=no"
-            mkdir -p scripts
-            echo "$BUILD_DIR"
-            ssh $SSH_ARGS "$SSH_HOST"  mkdir -p "$BUILD_DIR/workspaces" "$BUILD_DIR/scripts" "$BUILD_DIR/tmp"
-            echo -e local arch is: $(arch)
-            echo -e remote arch is:
-            ssh $SSH_ARGS "$SSH_HOST" /bin/bash -c "arch"
-
-           
-            # write the script to disk:
-            cat >scripts/script-build.sh <<'REMOTESSHEOF'
-            #!/bin/bash
-            set -o verbose
-            echo 'script-build.sh start'
-            echo -e  $(uname -m)
-            
-            echo 'script-build.sh end'
-            REMOTESSHEOF
-            
-            # make it executable
-            chmod +x scripts/script-build.sh
-            
-            # sync scripts dir to the SSH Host
-            rsync -ra scripts "$SSH_HOST:$BUILD_DIR"
-            
-            # for debugging
-            ssh $SSH_ARGS "$SSH_HOST" /bin/bash -c "ls -alR /scripts"
-            ssh $SSH_ARGS "$SSH_HOST" /bin/bash -c "cat /script/script-build.sh"
-            
-
             echo "Snapshot:\n"
             echo ${SNAPSHOT} | jq "."
             echo "1 - works:"
@@ -103,20 +51,15 @@ spec:
             echo extracting image pullspec...
             IMAGE=$(echo ${SNAPSHOT} | jq ".components[] | select(.name==\"arm64-test-demo\")"| jq .containerImage | tr -d '"')
             echo IMAGE SPEC: $IMAGE
-          
-
-            # execute the script in a container on the SSH host
-            if [ssh $SSH_ARGS "$SSH_HOST" podman  run \
-            -e PARAM_BUILDER_IMAGE="quay.io/bcook/jq-ubi9:latest" \
-            -v $BUILD_DIR/scripts:/script:Z \
-            --user=0  --rm  "$BUILDER_IMAGE" /script/script-build.sh]; then
-              RESULT=SUCCESS
+            
+            # Run custom tests for the given Snapshot here
+            # After the tests finish, record the overall result in the RESULT variable
+            
+            execute container on remote host
+            if ssh $SSH_ARGS "$SSH_HOST" podman run --rm --entrypoint="/hello-world.sh" $IMAGE | grep -Fxq 'Hello World!'; then
+              RESULT="SUCCESS"
+              echo $RESULT
             fi
-
-
-            # Output the standardized TEST_OUTPUT result in JSON form
-            # TEST_OUTPUT=$(jq -rc --arg date $(date +%s) --arg RESULT "${RESULT}" --null-input \
-            #  '{result: $RESULT, timestamp: $date, failures: $FAILURES, successes: $SUCCESSES, warnings: 0}')
             
             if [ $SUCCESS ]; then
               RESULT="SUCCESS"
@@ -130,10 +73,7 @@ spec:
               echo $RESULT
             fi
 
-
-            echo -n "{"timestamp":"${date +%s}","namespace":"","successes":${success},"failures":"","warnings":0,"result":${RESULT}}" > "$(results.TEST_OUTPUT.path)"
-
-
+            echo "{\"timestamp\":\"$(date +%s)\",\"namespace\":\"\",\"successes\":${SUCCESSES},\"failures\":${FAILURES},\"warnings\":0,\"result\":\"${RESULT}\"}" > "$(results.TEST_OUTPUT.path)"
 
           securityContext:
             runAsUser: 0
