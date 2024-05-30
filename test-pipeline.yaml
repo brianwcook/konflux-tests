@@ -43,6 +43,9 @@ spec:
           - name: SNAPSHOT
             value: $(params.SNAPSHOT)
           script: | 
+            #!/bin/bash
+            dnf install -y jq
+            
             echo "Snapshot:\n"
             echo ${SNAPSHOT} | jq "."
             echo "1 - works:"
