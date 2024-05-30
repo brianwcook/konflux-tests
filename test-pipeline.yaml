@@ -48,7 +48,7 @@ spec:
             value: $(params.SNAPSHOT)
           script: | 
             #!/bin/bash
-            dnf install -y jq ssh-clients
+            dnf install -y jq openssh-clients
 
             echo "Snapshot:\n"
             echo ${SNAPSHOT} | jq "."
@@ -80,7 +80,7 @@ spec:
               echo $RESULT
             fi
 
-            echo "{\"timestamp\":\"$(date +%s)\",\"namespace\":\"\",\"successes\":${SUCCESSES},\"failures\":${FAILURES},\"warnings\":0,\"result\":\"${RESULT}\"}" > "$(results.TEST_OUTPUT.path)"
+            echo "{\"timestamp\":\"$(date +%s)\",\"namespace\":\"\",\"successes\":${SUCCESSES},\"failures\":\${FAILURES},\"warnings\":0,\"arch\":$(arch),\"result\":\"${RESULT}\"}"
 
           securityContext:
             runAsUser: 0
