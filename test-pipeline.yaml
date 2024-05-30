@@ -82,9 +82,7 @@ spec:
             echo -e remote arch is:
             ssh $SSH_ARGS "$SSH_HOST" /bin/bash -c "arch"
 
-            # transfers data
-            # rsync -ra $(workspaces.source.path)/ "$SSH_HOST:$BUILD_DIR/workspaces/source/"
-            
+           
             # write the script to disk:
             cat >scripts/script-build.sh <<'REMOTESSHEOF'
             #!/bin/bash
