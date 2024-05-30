@@ -128,12 +128,13 @@ spec:
             IMAGE=$(echo ${SNAPSHOT} | jq ".components[] | select(.name==\"arm64-test-demo\")"| jq .containerImage | tr -d '"')
             echo IMAGE SPEC: $IMAGE
           
-          
+
             # execute the script in a container on the SSH host
             ssh $SSH_ARGS "$SSH_HOST" podman  run \
             -e PARAM_BUILDER_IMAGE="quay.io/bcook/jq-ubi9:latest" \
             -v $BUILD_DIR/scripts:/script:Z \
             --user=0  --rm  "$BUILDER_IMAGE" /script/script-build.sh
+
           securityContext:
             runAsUser: 0
             capabilities:
