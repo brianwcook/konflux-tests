@@ -90,7 +90,7 @@ spec:
             # Run custom tests for the given Snapshot here
             # After the tests finish, record the overall result in the RESULT variable
             
-            execute container on remote host
+            # execute container on remote host
             
             if ssh $SSH_ARGS "$SSH_HOST" podman run --rm --entrypoint="/hello-world.sh" $IMAGE | grep -Fxq 'Hello World!'; then
               RESULT="SUCCESS"
