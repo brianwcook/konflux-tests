@@ -49,7 +49,32 @@ spec:
           script: | 
             #!/bin/bash
             
-        
+            ######
+            # Boilerplate setup stuff
+
+            set -o verbose
+            set -eu
+            set -o pipefail
+            mkdir -p ~/.ssh
+            if [ -e "/ssh/error" ]; then
+              #no server could be provisioned
+              cat /ssh/error
+              exit 1
+            elif [ -e "/ssh/otp" ]; then
+            curl --cacert /ssh/otp-ca -XPOST -d @/ssh/otp $(cat /ssh/otp-server) >~/.ssh/id_rsa
+            echo "" >> ~/.ssh/id_rsa
+            else
+              cp /ssh/id_rsa ~/.ssh
+            fi
+            chmod 0400 ~/.ssh/id_rsa
+            export SSH_HOST=$(cat /ssh/host)
+            # export BUILD_DIR=$(cat /ssh/user-dir)
+            export SSH_ARGS="-o StrictHostKeyChecking=no"
+            #mkdir -p scripts
+            #echo "$BUILD_DIR"
+            #ssh $SSH_ARGS "$SSH_HOST"  mkdir -p "$BUILD_DIR/workspaces" "$BUILD_DIR/scripts" "$BUILD_DIR/tmp"
+            
+            ######
             
             dnf install -y jq openssh-clients
 
@@ -66,7 +91,8 @@ spec:
             # After the tests finish, record the overall result in the RESULT variable
             
             execute container on remote host
-            if ssh $SSH_ARGS $(cat /ssh/host) podman run --rm --entrypoint="/hello-world.sh" $IMAGE | grep -Fxq 'Hello World!'; then
+            
+            if ssh $SSH_ARGS "$SSH_HOST" podman run --rm --entrypoint="/hello-world.sh" $IMAGE | grep -Fxq 'Hello World!'; then
               RESULT="SUCCESS"
               echo $RESULT
             fi
