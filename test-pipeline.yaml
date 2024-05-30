@@ -92,7 +92,7 @@ spec:
             
             # execute container on remote host
             
-            OUTPUT=ssh $SSH_ARGS "$SSH_HOST" podman run --rm --entrypoint="/hello-world.sh" $IMAGE 
+            OUTPUT=$(ssh $SSH_ARGS "$SSH_HOST" podman run --rm --entrypoint="/hello-world.sh" $IMAGE)
             
             if [ "$OUTPUT" = 'Hello World!' ]; then
               RESULT="SUCCESS"
