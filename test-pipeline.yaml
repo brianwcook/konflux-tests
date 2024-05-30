@@ -69,4 +69,8 @@ spec:
             TEST_OUTPUT=$(jq -rc --arg date $(date +%s) --arg RESULT "${RESULT}" --null-input \
               '{result: $RESULT, timestamp: $date, failures: ${FAILURES}, successes: ${FAILURES}, warnings: 0}')
             echo -n "${TEST_OUTPUT}" | tee $(results.TEST_OUTPUT.path)
-          
+          securityContext:
+            runAsUser: 0
+            capabilities:
+              add:
+              - SETFCAP
