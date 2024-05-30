@@ -22,7 +22,7 @@ spec:
         - name: SNAPSHOT
           value: $(params.SNAPSHOT)
         - name: PLATFORM
-          value: linux/arm64
+          value: linux/amd64
       taskSpec:
         volumes:
         - name: ssh
@@ -69,8 +69,10 @@ spec:
             fi
 
             # Output the standardized TEST_OUTPUT result in JSON form
-            TEST_OUTPUT=$(jq -rc --arg date $(date +%s) --arg RESULT "${RESULT}" --null-input \
-              '{result: $RESULT, timestamp: $date, failures: ${FAILURES}, successes: ${FAILURES}, warnings: 0}')
+            # TEST_OUTPUT=$(jq -rc --arg date $(date +%s) --arg RESULT "${RESULT}" --null-input \
+            #  '{result: $RESULT, timestamp: $date, failures: $FAILURES, successes: $SUCCESSES, warnings: 0}')
+            
+
             echo -n "${TEST_OUTPUT}" | tee $(results.TEST_OUTPUT.path)
           securityContext:
             runAsUser: 0
