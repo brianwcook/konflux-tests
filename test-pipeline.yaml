@@ -105,7 +105,7 @@ spec:
               FAILURES=1
               echo $RESULT
             fi
-
+            echo "OUTPUT: $OUTPUT"
             echo "{\"timestamp\":\"$(date +%s)\",\"namespace\":\"\",\"successes\":${SUCCESSES},\"failures\":\${FAILURES},\"warnings\":0,\"arch\":$(arch),\"result\":\"${RESULT}\"}"
 
           securityContext:
