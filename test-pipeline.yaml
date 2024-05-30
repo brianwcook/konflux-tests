@@ -111,7 +111,11 @@ spec:
             fi
             echo "OUTPUT: $OUTPUT"
             echo "{\"timestamp\":\"$(date +%s)\",\"namespace\":\"\",\"successes\":${SUCCESSES},\"failures\":\${FAILURES},\"warnings\":0,\"arch\":$REMOTE_ARCH,\"result\":\"${RESULT}\"}"
-
+            
+            if [ "$RESULT" = 'FAILURE' ]; then
+              exit 1
+            fi
+            
           securityContext:
             runAsUser: 0
             capabilities:
