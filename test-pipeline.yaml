@@ -16,13 +16,17 @@ spec:
       name: EXPECTED_OUTPUT
       default: "Hello World!"
       type: string
+    - name: PLATFORM
+      description: "multi-platform-controller platofmr string"
+      default: "linux/amd64"
+
   tasks:
     - name: task-1
       params:
         - name: SNAPSHOT
           value: $(params.SNAPSHOT)
         - name: PLATFORM
-          value: linux/amd64
+          value: $(params.PLATFORM)
       taskSpec:
         volumes:
         - name: ssh
@@ -38,7 +42,7 @@ spec:
           description: Test output
         steps:
         - name: run-test
-          image: registry.access.redhat.com/ubi9.ubi
+          image: registry.access.redhat.com/ubi9/ubi
           env:
           - name: SNAPSHOT
             value: $(params.SNAPSHOT)
