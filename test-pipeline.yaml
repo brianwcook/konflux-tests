@@ -46,7 +46,7 @@ spec:
             value: $(params.SNAPSHOT)
           script: | 
             #!/bin/bash
-            
+            env
             ######
             # Boilerplate setup stuff
 
